@@ -157,4 +157,28 @@ public class InvoiceServiceTest {
         }
     }
 
+    @Test
+    public void givenProperUserId_WhenRidesAreMultiplrAreGiven_ShouldGetsAddedToRideRepository() {
+        InvoiceService invoiceService = new InvoiceService();
+        String userId = "shivanjali@gamil.com";
+        try {
+            Ride[] ride1 = {new Ride(2.0, 5,Ride.RideType.PREMIUM),
+                    new Ride(0.1, 1, Ride.RideType.NORMAL)
+            };
+            Ride[] ride2 = {new Ride(2.0, 5,Ride.RideType.PREMIUM),
+                    new Ride(0.1, 1, Ride.RideType.NORMAL)
+            };
+            Ride[] ride3 = {new Ride(2.0, 5,Ride.RideType.PREMIUM),
+                    new Ride(0.1, 1, Ride.RideType.NORMAL)
+            };
+            invoiceService.addRides(userId, ride1);
+            invoiceService.addRides(userId, ride2);
+            invoiceService.addRides(userId, ride3);
+            InvoiceSummary summary = null;
+            summary = invoiceService.getInvoiceSummary(userId);
+            InvoiceSummary expectedInvoiceSummary = new InvoiceSummary(6, 135);
+            Assert.assertEquals(expectedInvoiceSummary,summary);
+        } catch (InvoiceServiceException e) {}
+
+    }
 }
