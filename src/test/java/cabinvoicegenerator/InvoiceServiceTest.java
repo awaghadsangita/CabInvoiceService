@@ -8,11 +8,11 @@ public class InvoiceServiceTest {
     @Test
     public void givenDistanceAndTime_ShouldReturnTotalFare() {
         try {
-            InvoiceService invoiceService = new InvoiceService(InvoiceService.JourneyType.NORMAL);
+            InvoiceService invoiceService = new InvoiceService();
             double distance = 2.0;
             int time = 5;
             double fare = 0;
-            fare = invoiceService.calculateFare(distance, time);
+            fare = invoiceService.calculateFare(distance, time,Ride.RideType.NORMAL);
             Assert.assertEquals(25, fare, 0.0);
         } catch (InvoiceServiceException e) {
         }
@@ -21,11 +21,11 @@ public class InvoiceServiceTest {
     @Test
     public void givenLessDistanceAndTime_ShouldReturnMinimumFare() {
         try {
-            InvoiceService invoiceService = new InvoiceService(InvoiceService.JourneyType.NORMAL);
+            InvoiceService invoiceService = new InvoiceService();
             double distance = 0.1;
             int time = 1;
             double fare = 0;
-            fare = invoiceService.calculateFare(distance, time);
+            fare = invoiceService.calculateFare(distance, time,Ride.RideType.NORMAL);
             Assert.assertEquals(5, fare, 0.0);
         } catch (InvoiceServiceException e) {
         }
@@ -34,9 +34,9 @@ public class InvoiceServiceTest {
     @Test
     public void givenMultipleRides_ShouldReturnInvoiceSummary() {
         try {
-            InvoiceService invoiceService = new InvoiceService(InvoiceService.JourneyType.NORMAL);
-            Ride[] rides = {new Ride(2.0, 5),
-                    new Ride(0.1, 1)
+            InvoiceService invoiceService = new InvoiceService();
+            Ride[] rides = {new Ride(2.0, 5, Ride.RideType.NORMAL),
+                    new Ride(0.1, 1, Ride.RideType.NORMAL)
             };
             InvoiceSummary summary = null;
             summary = invoiceService.calculateFare(rides);
@@ -49,10 +49,10 @@ public class InvoiceServiceTest {
     @Test
     public void givenUserIdAndRides_ShouldReturnInvoiceSummary() {
         try {
-            InvoiceService invoiceService = new InvoiceService(InvoiceService.JourneyType.NORMAL);
+            InvoiceService invoiceService = new InvoiceService();
             String userId = "a@b.com";
-            Ride[] rides = {new Ride(2.0, 5),
-                    new Ride(0.1, 1)
+            Ride[] rides = {new Ride(2.0, 5, Ride.RideType.NORMAL),
+                    new Ride(0.1, 1, Ride.RideType.NORMAL)
             };
             invoiceService.addRides(userId, rides);
             InvoiceSummary summary = null;
@@ -66,12 +66,12 @@ public class InvoiceServiceTest {
     @Test
     public void givenUserId_WithPremiumRides_ShouldReturnInvoiceSummary() {
         try {
-            InvoiceService invoiceService = new InvoiceService(InvoiceService.JourneyType.PREMIUM);
+            InvoiceService invoiceService = new InvoiceService();
             String userId = "sangita@gmail.com";
             double distance = 15;
             int time = 2;
             double fare = 0;
-            fare = invoiceService.calculateFare(distance, time);
+            fare = invoiceService.calculateFare(distance, time,Ride.RideType.PREMIUM);
             Assert.assertEquals(229.0, fare, 0.0);
         } catch (InvoiceServiceException e) {
         }
@@ -79,9 +79,9 @@ public class InvoiceServiceTest {
     @Test
     public void givenMultiplePremiumRides_ShouldReturnInvoiceSummary() {
         try {
-            InvoiceService invoiceService = new InvoiceService(InvoiceService.JourneyType.PREMIUM);
-            Ride[] rides = {new Ride(2.0, 5),
-                    new Ride(0.1, 1)
+            InvoiceService invoiceService = new InvoiceService();
+            Ride[] rides = {new Ride(2.0, 5, Ride.RideType.PREMIUM),
+                    new Ride(0.1, 1, Ride.RideType.PREMIUM)
             };
             InvoiceSummary summary = null;
             summary = invoiceService.calculateFare(rides);
@@ -93,10 +93,10 @@ public class InvoiceServiceTest {
     @Test
     public void givenUserId_WithPremiumWithMultipleRides_ShouldReturnInvoiceSummary() {
         try {
-            InvoiceService invoiceService = new InvoiceService(InvoiceService.JourneyType.PREMIUM);
+            InvoiceService invoiceService = new InvoiceService();
             String userId = "a@b.com";
-            Ride[] rides = {new Ride(2.0, 5),
-                    new Ride(0.1, 1)
+            Ride[] rides = {new Ride(2.0, 5, Ride.RideType.PREMIUM),
+                    new Ride(0.1, 1, Ride.RideType.PREMIUM)
             };
             invoiceService.addRides(userId, rides);
             InvoiceSummary summary = null;
@@ -110,10 +110,10 @@ public class InvoiceServiceTest {
     @Test
     public void givenNullUserId_WithPremiumWithMultipleRides_ShouldHandleException() {
         try {
-            InvoiceService invoiceService = new InvoiceService(InvoiceService.JourneyType.PREMIUM);
+            InvoiceService invoiceService = new InvoiceService();
             String userId = null;
-            Ride[] rides = {new Ride(2.0, 5),
-                    new Ride(0.1, 1)
+            Ride[] rides = {new Ride(2.0, 5, Ride.RideType.PREMIUM),
+                    new Ride(0.1, 1, Ride.RideType.PREMIUM)
             };
             invoiceService.addRides(userId, rides);
             InvoiceSummary summary = null;
@@ -122,6 +122,24 @@ public class InvoiceServiceTest {
 
         } catch (InvoiceServiceException e) {
             Assert.assertEquals(InvoiceServiceException.ExceptionType.INVALID_USER,e.type);
+        }
+    }
+
+    @Test
+    public void givenUserId_WithMixedRideTypeWithMultipleRides_ShouldReturnInvoiceSummary() {
+        try {
+            InvoiceService invoiceService = new InvoiceService();
+            String userId = "ab@gmail.com";
+            Ride[] rides = {new Ride(2.0, 5,Ride.RideType.PREMIUM),
+                    new Ride(0.1, 1, Ride.RideType.NORMAL)
+            };
+            invoiceService.addRides(userId, rides);
+            InvoiceSummary summary = null;
+            summary = invoiceService.getInvoiceSummary(userId);
+            InvoiceSummary expectedInvoiceSummary = new InvoiceSummary(2, 45.0);
+            Assert.assertEquals(expectedInvoiceSummary,summary);
+        } catch (InvoiceServiceException e) {
+
         }
     }
 
