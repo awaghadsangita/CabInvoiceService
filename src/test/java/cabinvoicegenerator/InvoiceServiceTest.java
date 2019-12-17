@@ -143,4 +143,18 @@ public class InvoiceServiceTest {
         }
     }
 
+    @Test
+    public void givenUserId_WithMixedRideTypeWithNullTimeWithMultipleRides_ShouldHandleException() {
+        try {
+            InvoiceService invoiceService = new InvoiceService();
+            String userId = "ab@gmail.com";
+            Ride[] rides = {new Ride(2.0, null,Ride.RideType.PREMIUM),
+                    new Ride(0.1, null, Ride.RideType.NORMAL)
+            };
+            invoiceService.addRides(userId, rides);
+        } catch (InvoiceServiceException e) {
+            Assert.assertEquals(InvoiceServiceException.ExceptionType.INVALID_INPUT,e.type);
+        }
+    }
+
 }

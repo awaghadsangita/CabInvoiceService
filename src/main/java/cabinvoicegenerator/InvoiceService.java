@@ -9,14 +9,13 @@ public class InvoiceService {
     private static final double MINIMUM_PREMIUM_COST_PER_KILOMETER = 15;
     private static final int PREMIUM_COST_PER_TIME = 2;
     private static final double MINIMUM_PREMIUM_FARE = 20;
-
-
     RideRepository rideRepository = null;
+
     public InvoiceService() {
         this.rideRepository = new RideRepository();
     }
 
-    public double calculateFare(double distance, int time,Ride.RideType rideType) throws InvoiceServiceException {
+    public double calculateFare(double distance, int time, Ride.RideType rideType) throws InvoiceServiceException {
         double totalFare = 0.0;
         if (rideType.equals(Ride.RideType.NORMAL)) {
             totalFare = distance * MINIMUM_NORMAL_COST_PER_KILOMETER + time * NORMAL_COST_PER_TIME;
@@ -32,23 +31,21 @@ public class InvoiceService {
     public InvoiceSummary calculateFare(Ride[] rides) throws InvoiceServiceException {
         double totalFare = 0.0;
         for (Ride ride : rides) {
-            totalFare += this.calculateFare(ride.distance, ride.time,ride.rideType);
+            totalFare += this.calculateFare(ride.distance, ride.time, ride.rideType);
         }
         return new InvoiceSummary(rides.length, totalFare);
     }
 
     public void addRides(String userId, Ride[] rides) throws InvoiceServiceException {
-           try {
-               Pattern.matches("^[a-zA-Z0-9.-@]{2,}", userId);
-               rideRepository.addRides(userId, rides);
-           }catch(NullPointerException e){
-               throw new InvoiceServiceException(InvoiceServiceException.ExceptionType.INVALID_USER,"Invalid user Id");
-           }
+        try {
+            Pattern.matches("^[a-zA-Z0-9.-@]{2,}", userId);
+            rideRepository.addRides(userId, rides);
+        } catch (NullPointerException e) {
+            throw new InvoiceServiceException(InvoiceServiceException.ExceptionType.INVALID_USER, "Invalid user Id");
+        }
     }
 
     public InvoiceSummary getInvoiceSummary(String userId) throws InvoiceServiceException {
         return this.calculateFare(rideRepository.getRides(userId));
     }
-
-
 }

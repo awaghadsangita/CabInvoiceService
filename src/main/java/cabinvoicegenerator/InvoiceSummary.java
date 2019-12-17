@@ -20,6 +20,4 @@ public class InvoiceSummary {
                 Double.compare(that.numOfRides, numOfRides) == 0 &&
                 Double.compare(that.averageFare, averageFare) == 0;
     }
-
-
 }
