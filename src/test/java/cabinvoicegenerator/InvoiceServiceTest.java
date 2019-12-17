@@ -106,4 +106,23 @@ public class InvoiceServiceTest {
         } catch (InvoiceServiceException e) {
         }
     }
+
+    @Test
+    public void givenNullUserId_WithPremiumWithMultipleRides_ShouldHandleException() {
+        try {
+            InvoiceService invoiceService = new InvoiceService(InvoiceService.JourneyType.PREMIUM);
+            String userId = null;
+            Ride[] rides = {new Ride(2.0, 5),
+                    new Ride(0.1, 1)
+            };
+            invoiceService.addRides(userId, rides);
+            InvoiceSummary summary = null;
+            summary = invoiceService.getInvoiceSummary(userId);
+            InvoiceSummary expectedInvoiceSummary = new InvoiceSummary(2, 60.0);
+
+        } catch (InvoiceServiceException e) {
+            Assert.assertEquals(InvoiceServiceException.ExceptionType.INVALID_USER,e.type);
+        }
+    }
+
 }
