@@ -3,32 +3,19 @@ package cabinvoicegenerator;
 import java.util.regex.Pattern;
 
 public class InvoiceService {
-    private static final double MINIMUM_NORMAL_COST_PER_KILOMETER = 10;
-    private static final int NORMAL_COST_PER_TIME = 1;
-    private static final double MINIMUM_NORMAL_FARE = 5;
-    private static final double MINIMUM_PREMIUM_COST_PER_KILOMETER = 15;
-    private static final int PREMIUM_COST_PER_TIME = 2;
-    private static final double MINIMUM_PREMIUM_FARE = 20;
     RideRepository rideRepository = null;
 
     public InvoiceService() {
         this.rideRepository = new RideRepository();
     }
 
-    public double calculateFare(double distance, int time, Ride.RideType rideType) throws InvoiceServiceException {
+    public double calculateFare(double distance, int time, RideTypeEnum rideType){
         double totalFare = 0.0;
-        if (rideType.equals(Ride.RideType.NORMAL)) {
-            totalFare = distance * MINIMUM_NORMAL_COST_PER_KILOMETER + time * NORMAL_COST_PER_TIME;
-            return Math.max(totalFare, MINIMUM_NORMAL_FARE);
-        }
-        if (rideType.equals(Ride.RideType.PREMIUM)) {
-            totalFare = distance * MINIMUM_PREMIUM_COST_PER_KILOMETER + time * PREMIUM_COST_PER_TIME;
-            return Math.max(totalFare, MINIMUM_PREMIUM_FARE);
-        }
-        throw new InvoiceServiceException(InvoiceServiceException.ExceptionType.INVALID_JOURNEYTYPE, "Invalid Journey Type");
+        totalFare = distance * rideType.MINIMUM_COST_PER_KILOMETER + time * rideType.COST_PER_TIME;
+        return Math.max(totalFare,rideType.MINIMUM_FARE);
     }
 
-    public InvoiceSummary calculateFare(Ride[] rides) throws InvoiceServiceException {
+    public InvoiceSummary calculateFare(Ride[] rides) {
         double totalFare = 0.0;
         for (Ride ride : rides) {
             totalFare += this.calculateFare(ride.distance, ride.time, ride.rideType);
@@ -45,7 +32,7 @@ public class InvoiceService {
         }
     }
 
-    public InvoiceSummary getInvoiceSummary(String userId) throws InvoiceServiceException {
+    public InvoiceSummary getInvoiceSummary(String userId){
         return this.calculateFare(rideRepository.getRides(userId));
     }
 }
