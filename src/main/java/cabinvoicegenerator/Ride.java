@@ -9,7 +9,7 @@ public class Ride {
         try {
             this.distance = distance;
             this.time = time;
-            this.rideType = rideType;
+    git push        this.rideType = rideType;
         } catch (NullPointerException e) {
             throw new InvoiceServiceException(InvoiceServiceException.ExceptionType.INVALID_INPUT, "Invalid Input");
         }
